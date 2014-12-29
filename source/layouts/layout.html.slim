@@ -1,0 +1,60 @@
+/
+/ Layout
+/
+
+doctype html
+html lang="ja"
+  head
+    meta charset="utf-8"
+    /meta name="viewport" content="width=1200"
+    meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+    title = current_page.data.title || "mysite"
+    meta name="keywords" content="#{get_meta('keywords')}"
+    meta name="description" content="#{get_meta('description')}"
+    meta http-equiv="X-UA-Compatible" content="IE=Edge, chrome=1"
+    /meta name="author" content="yuji ito"
+    /
+    / styles
+    /
+    = slls_css_link_tag 'com', :type => nil
+    = NEWLINE
+    - additional_style = get_additional_style(current_page.data.id)
+    - if !additional_style.nil?
+      = slls_css_link_tag additional_style, :type => nil
+      = NEWLINE
+    /
+    / scripts
+    /
+    javascript:
+      createjs = window;
+    = javascript_include_tag 'lib/modernizr', :type => nil
+    = NEWLINE
+    /[if lt IE 9]
+      = javascript_include_tag 'lib/respond.src', :type => nil
+      = NEWLINE
+    = javascript_include_tag 'lib/jquery', :type => nil
+    = NEWLINE
+    = javascript_include_tag 'lib/jquery.easing', :type => nil
+    = NEWLINE
+    - data_main = get_data_main(current_page.data.id)
+    - if build?
+      = javascript_include_tag "lib/#{data_main}", :type => nil
+    - else
+      = javascript_include_tag 'lib/require', :type => nil, :'data-main' => data_main
+    = NEWLINE
+    /
+    / others
+    /
+    = slls_favicon_tag '/img/favicon.ico', :rel => "shortcut icon", :type => nil
+  = NEWLINE
+  body id="#{current_page.data.id}" class="cat-#{current_page.data.category}"
+    /- if build? 
+    /  = partial 'facebook_root_tags'
+    = partial 'header'
+    article#main
+      = yield
+    = NEWLINE
+    = NEWLINE
+    = partial 'footer'
+
+/ EOF

@@ -1,0 +1,4 @@
+# gnav.yml
+- id: inde
+  url: '/index.html'
+  label: 'Index'

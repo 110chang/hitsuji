@@ -1,0 +1,157 @@
+@charset "utf-8"
+
+// ============================
+// 
+//     Config
+//
+// ============================
+
+=white-link-colors
+  +link-colors(white, white, white, white, white)
+
+=black-link-colors
+  +link-colors(black, #333333, #666666, black, #333333)
+
+// grid by inline-block
+
+=inline-grid-list($selector, $width, $unit-width, $margin, $align: left, $valign: top, $supple: 2px)
+  #{$selector}
+    width: $width
+    margin: 0 auto
+    ul
+      width: $width + ($margin - $supple) * 2
+      margin: 0 $supple - $margin
+      text-align: $align
+    li
+      display: inline-block
+      width: $unit-width
+      margin: $margin $margin - $supple
+      vertical-align: $valign
+  .ie7 #{$selector}
+    ul
+      width: $width + $margin * 2
+      margin: 0 $margin * -1
+    li
+      display: inline
+      zoom: 1
+      margin: $margin
+
+=left-triangle($size, $color)
+  &:before
+    content: ""
+    width: 0
+    height: 0
+    position: absolute
+    right: 0
+    top: 50%
+    margin-top: $size * -1
+    border: $size solid transparent
+    border-left: $size solid $color
+
+=left-arrow($size, $thickness, $color, $bgcolor)
+  &:before
+    content: ""
+    width: 0
+    height: 0
+    position: absolute
+    right: 0
+    top: 50%
+    margin-top: $size * -1
+    border: $size solid transparent
+    border-left: $size solid $color
+  &:after
+    content: ""
+    width: 0
+    height: 0
+    position: absolute
+    right: $thickness
+    top: 50%
+    margin-top: $size * -1
+    border: $size solid transparent
+    border-left: $size solid $bgcolor
+
+=hide-arrow
+  &:before
+    display: none
+  &:after
+    display: none
+
+// use micro clearfix
+
+=micro-clearfix
+  /* For modern browsers */
+  .cf:before, .cf:after
+    content: ""
+    display: block
+    overflow: hidden
+
+  .cf:after
+    clear: both
+
+  /* For IE 6/7 (trigger hasLayout) */
+  .cf
+    zoom: 1
+
+// use ie-css3.htc hack
+
+=ie-css3-htc
+  position: relative
+  behavior: url(/css/ie-css3.htc)
+  z-index: 1
+
+// replace image
+
+=replacing-image
+  overflow: hidden
+  text-indent: -9999px
+
+// fonts var
+
+$fMeiryo: "メイリオ", Meiryo
+$fArial: "HelveticaNeue", Arial, sans-serif
+$fHelveticaNeueCondBold: "HelveticaNeue-CondensedBold", Impact, Arial, sans-serif
+$fMyriad: Myriad, TrebuchetMS, sans-serif
+
+=rel-font-size($size, $sizeBase: 16px)
+  $floor: floor(10000 * $size / $sizeBase) * 0.01
+  font-size: percentage($floor / 100)
+
+// form input parts
+
+=form-input-tag-basic
+  input[type=text],
+  input[type=password],
+  textarea
+    padding: 5px 5px
+    border: 1px solid #CCC
+    +border-radius(3px)
+  textarea
+    +rel-font-size(12px)
+    resize: vertical
+  input[type=text].very-short,
+  input[type=password].very-short
+    width: 10%
+  input[type=text].short,
+  input[type=password].short
+    width: 25%
+  input[type=text].half,
+  input[type=password].half
+    width: 50%
+  input[type=text].long,
+  input[type=password].long
+    width: 75%
+  input[type=text].full,
+  input[type=password].full
+    width: 97%
+  textarea.full
+    width: 97%
+  select.short
+    width: 80px
+  select.long
+    width: 220px
+  label + label
+    margin-left: 0.5em
+  label > input
+    margin: 0 0.25em
+  input[type=submit]
+    font-family: Arial, sans-serif

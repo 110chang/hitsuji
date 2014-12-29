@@ -1,0 +1,17 @@
+{
+  "name": "boilerplate",
+  "version": "0.1.0",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-bower-task": "^0.4.0",
+    "grunt-contrib-jasmine": "^0.8.1",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-requirejs": "~0.4.4",
+    "grunt-contrib-watch": "~0.3.1",
+    "grunt-middleman": "~0.1.2",
+    "grunt-template-jasmine-requirejs": "^0.2.0",
+    "jshint": "^2.5.10",
+    "load-grunt-tasks": "^1.0.0",
+    "matchdep": "~0.1.1"
+  }
+}

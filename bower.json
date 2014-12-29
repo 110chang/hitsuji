@@ -1,0 +1,22 @@
+{
+  "name": "boilerplate",
+  "version": "0.0.0",
+  "authors": [
+    "110chang <u@110chang.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jquery": "2",
+    "modernizr": "~2.8.3",
+    "respond": "~1.4.2",
+    "jquery.easing": "~1.3.0",
+    "requirejs": "~2.1.14",
+    "almond": "~0.3.0"
+  },
+  "exportsOverride": {
+    "modernizr": {
+      "js": "modernizr.js"
+    }
+  }
+}
