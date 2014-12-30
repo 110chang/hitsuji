@@ -7,7 +7,9 @@
 */
 
 define([
-  'mod/extend'
+  'mod/extend',
+  'app/b2',
+  'app/cnf'
 ], function(extend, b2, cnf) {
   var CW = cnf.CANVAS_WIDTH;
   var CH = cnf.CANVAS_HEIGHT;

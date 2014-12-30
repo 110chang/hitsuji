@@ -24,7 +24,6 @@ require([
   'mod/screen',
   'mod/utils/raf',
   'app/b2',
-  'app/fence',
   'box2d',
   'easel'
 ], function(Anchor, Screen, raf, b2) {
