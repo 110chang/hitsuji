@@ -10636,7 +10636,9 @@ define('app/b2',[
     PolygonShape  : Box2D.Collision.Shapes.b2PolygonShape,
     CircleShape   : Box2D.Collision.Shapes.b2CircleShape,
     DebugDraw     : Box2D.Dynamics.b2DebugDraw,
-    MouseJointDef : Box2D.Dynamics.Joints.b2MouseJointDef
+    MouseJointDef : Box2D.Dynamics.Joints.b2MouseJointDef,
+    RevoluteJointDef : Box2D.Dynamics.Joints.b2RevoluteJointDef,
+    DistanceJointDef : Box2D.Dynamics.Joints.b2DistanceJointDef
   };
 });
 

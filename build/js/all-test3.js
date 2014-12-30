@@ -10019,114 +10019,6 @@ define('mod/nav/anchor',[
 });
 /*
 *
-*   Utils.legacyIE
-*
-*/
-
-define('mod/utils/legacyie',[], function() {
-  return (function() { 
-    var undef, v = 3, div = document.createElement('div');
-    while (
-      div.innerHTML = '<!--[if gt IE '+(++v)+']><i></i><![endif]-->',
-      div.getElementsByTagName('i')[0]
-    );
-    return v > 4 ? v : undef;
-  }());
-});
-
-/*
-*
-*   Utils.Browser r2
-*
-*   @author Yuji Ito @110chang
-*
-*/
-
-define('mod/browser',[
-  'mod/extend',
-  'mod/utils/legacyie'
-], function(extend, _ie) {
-  var _userAgent = navigator.userAgent;
-  function _is_IE(ua) {
-    return /MSIE/.test(ua);
-  }
-  function _is_IE11(ua) {
-    return /Trident/.test(ua);
-  }
-  function _is_iPhone(ua) {
-    return /iPhone/.test(ua);
-  }
-  function _is_iPad(ua) {
-    return /iPad/.test(ua);
-  }
-  function _is_Android(ua) {
-    return /Android/.test(ua);
-  }
-  function _is_mobile(ua) {
-    return /Mobile/.test(ua); // Android only
-  }
-  function _is_WebKit(ua) {
-    return /WebKit/.test(ua);
-  }
-  function _is_windows(platform) {
-    return /Win/.test(platform);
-  }
-  function _is_mac(platform) {
-    return /Mac/.test(platform);
-  }
-
-  function Browser(_userAgent, _platform) {
-    if (!(this instanceof Browser)) {
-      return new Browser(_userAgent, _platform);
-    }
-    /* user agent strings for testing */
-    this.userAgent = _userAgent || navigator.userAgent;
-    this.platform = _platform || navigator.platform;
-    this.ua = this.userAgent;
-  }
-  extend(Browser.prototype, {
-    ie: _ie,
-    IE: function() {
-      return _is_IE(this.ua);
-    },
-    IE11: function() {
-      return _is_IE11(this.ua);
-    },
-    iPhone: function() {
-      return _is_iPhone(this.ua);
-    },
-    iPad: function() {
-      return _is_iPad(this.ua);
-    },
-    Android: function() {
-      return _is_Android(this.ua);
-    },
-    WebKit: function() {
-      return _is_WebKit(this.ua);
-    },
-    mobile: function() {
-      // Android only
-      return _is_mobile(this.ua) && _is_Android(this.ua);
-    },
-    smallScreen: function() {
-      return this.iPhone() || this.mobile();
-    },
-    tablet: function() {
-      return this.iPad() || (!_is_mobile(this.ua) && _is_Android(this.ua));
-    },
-    Windows: function() {
-      return _is_windows(this.platform);
-    },
-    Mac: function() {
-      return _is_mac(this.platform);
-    }
-  });
-  
-  return Browser;
-});
-
-/*
-*
 *   Utils.requestAnimationFrame r2
 *
 *   @author Yuji Ito @110chang
@@ -10642,6 +10534,57 @@ define('app/b2',[
   };
 });
 
+/*
+*
+*   Fence
+*
+*   @author Yuji Ito @110chang
+*
+*/
+
+define('app/fence',[
+  'mod/extend'
+], function(extend, b2, cnf) {
+  var CW = cnf.CANVAS_WIDTH;
+  var CH = cnf.CANVAS_HEIGHT;
+  var SCALE = cnf.SCALE;
+  var abs = Math.abs;
+  var pow = Math.pow;
+
+  function Fence() {
+    this.bodies = [];
+  }
+  extend(Fence.prototype, {
+    bodies: null,
+
+    create: function(world) {
+      var i, fixDef, bodyDef, body;
+
+      for(i = 0; i < 4; i++) {
+        fixDef = new b2.FixtureDef();
+        fixDef.density = 1.0; //密度
+        fixDef.friction = 0.5; //摩擦
+        fixDef.restitution = 0.2; //弾性
+
+        bodyDef = new b2.BodyDef();
+        bodyDef.type = b2.Body.b2_staticBody;
+        // positions the center of the object (not upper left!)
+        bodyDef.position.x = CW * (1 - abs(1 - i) / 2) / SCALE;
+        bodyDef.position.y = CH * (1 - abs(2 - i) / 2) / SCALE;
+
+        fixDef.shape = new b2.PolygonShape();
+        // half width, half height.
+        fixDef.shape.SetAsBox(pow(CW, (i + 1) % 2) / SCALE, pow(CH, i % 2) / SCALE);
+
+        body = world.CreateBody(bodyDef);
+        body.CreateFixture(fixDef);
+
+        this.bodies.push(body);
+      }
+    }
+  });
+});
+
 /*!
 * @license EaselJS
 * Visit http://createjs.com/ for documentation, updates and examples.
@@ -10675,63 +10618,27 @@ requirejs.config({
     'mod'          : 'mod'
   },
   "shim": {
-    "jquery.easing": [
-      "jquery"
-    ]
+    "jquery.easing": ["jquery"]
   }
 });
 
 require([
   'mod/nav/anchor',
   'mod/screen',
-  'mod/browser',
   'mod/utils/raf',
   'app/b2',
+  'app/fence',
   'box2d',
   'easel'
-], function(Anchor, Screen, Browser, raf, b2) {
+], function(Anchor, Screen, raf, b2) {
   $(function() {
     console.log('DOM ready.');
     var CANVAS_WIDTH = 600;
     var CANVAS_HEIGHT = 400;
     var SCALE = 30;
+    var GRAVITY = new b2.Vec2(0, 10);
+    var world = new b2.World(GRAVITY, true);
 
-    var world = new b2.World(new b2.Vec2(0, 10), true);
-
-    var fixDef = new b2.FixtureDef();
-    fixDef.density = 1.0;
-    fixDef.friction = 0.5;
-    fixDef.restitution = 0.2;
-
-    var bodyDef = new b2.BodyDef();
-    bodyDef.type = b2.Body.b2_staticBody; 
-    // positions the center of the object (not upper left!)
-    bodyDef.position.x = CANVAS_WIDTH / 2 / SCALE;
-    bodyDef.position.y = CANVAS_HEIGHT / 1 / SCALE;
-
-    fixDef.shape = new b2.PolygonShape();   
-    // half width, half height.
-    fixDef.shape.SetAsBox(CANVAS_WIDTH / 2 / SCALE, 10 / 2 / SCALE);
-
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-    bodyDef.type = b2.Body.b2_dynamicBody;
-    for(var i = 0; i < 10; ++i) {
-      if(Math.random() > 0.5) {
-        fixDef.shape = new b2.PolygonShape();
-        fixDef.shape.SetAsBox(
-          Math.random() + 0.1 //half width
-         ,Math.random() + 0.1 //half height
-        );
-      } else {
-        fixDef.shape = new b2.CircleShape(
-          Math.random() + 0.1 //radius
-        );
-      }
-      bodyDef.position.x = Math.random() * 25;
-      bodyDef.position.y = Math.random() * 10;
-      world.CreateBody(bodyDef).CreateFixture(fixDef);
-    }
     //setup debug draw
     var $debug = $('#debug');
     $debug.attr('width', CANVAS_WIDTH).attr('height', CANVAS_HEIGHT);
@@ -10742,88 +10649,90 @@ require([
     debugDraw.SetLineThickness(1.0);
     debugDraw.SetFlags(b2.DebugDraw.e_shapeBit | b2.DebugDraw.e_jointBit);
     world.SetDebugDraw(debugDraw);
+
+    function createFence() {
+      var i = 0;
+      var fixDef, bodyDef, body;
+
+      for(; i < 4; i++) {
+
+        fixDef = new b2.FixtureDef();
+        fixDef.density = 1.0; //密度
+        fixDef.friction = 0.5; //摩擦
+        fixDef.restitution = 0.2; //弾性
+
+        bodyDef = new b2.BodyDef();
+        bodyDef.type = b2.Body.b2_staticBody;
+        // positions the center of the object (not upper left!)
+        bodyDef.position.x = CANVAS_WIDTH * (1 - Math.abs(1 - i) / 2) / SCALE;
+        bodyDef.position.y = CANVAS_HEIGHT * (1 - Math.abs(2 - i) / 2) / SCALE;
+
+        fixDef.shape = new b2.PolygonShape();
+        // half width, half height.
+        fixDef.shape.SetAsBox(
+          Math.pow(CANVAS_WIDTH, (i + 1) % 2) / SCALE,
+          Math.pow(CANVAS_HEIGHT, i % 2) / SCALE);
+
+        body = world.CreateBody(bodyDef);
+        body.CreateFixture(fixDef);
+      }
+    }
+    createFence();
+
+    // create hitsuji settings
+    var i = 0;
+    var max = 6;
+    var prevBody;
+    var firstBody;
+    var center = new b2.Vec2(CANVAS_WIDTH / 2 / SCALE, CANVAS_HEIGHT / 2 / SCALE);
+    for(; i < max; i++) {
+      var size = 10 + (Math.random() * 4 - 2);
+
+      var fixDef = new b2.FixtureDef();
+      fixDef.density = 1.0; //密度
+      fixDef.friction = 0.7; //摩擦
+      fixDef.restitution = 1; //弾性
+
+      var bodyDef = new b2.BodyDef();
+      bodyDef.type = b2.Body.b2_dynamicBody;
+      // positions the center of the object (not upper left!)
+      bodyDef.position.x = center.x + Math.random() * size / SCALE;
+      bodyDef.position.y = center.y + Math.random() * size / SCALE;
+
+      fixDef.shape = new b2.CircleShape(size / SCALE);
+
+      var body = world.CreateBody(bodyDef)
+      body.CreateFixture(fixDef);
+
+      if (prevBody) {
+        var jointDef = new b2.DistanceJointDef();
+        jointDef.bodyA = prevBody;
+        jointDef.bodyB = body;
+        jointDef.length = size / SCALE;
+        jointDef.frequencyHz = 5;
+        jointDef.dampingRatio = 0.1;
+        jointDef.anchorPoint = body.GetWorldCenter();
+
+        var joint = world.CreateJoint(jointDef);
+      } else {
+        firstBody = body;
+      }
+      prevBody = body;
+
+      if (i === max - 1) {
+        var jointDef = new b2.DistanceJointDef();
+        jointDef.bodyA = body;
+        jointDef.bodyB = firstBody;
+        jointDef.length = size / SCALE;
+        jointDef.frequencyHz = 5;
+        jointDef.dampingRatio = 0.1;
+        jointDef.anchorPoint = firstBody.GetWorldCenter();
+
+        var joint = world.CreateJoint(jointDef);
+      }
+    }
+
     
-    /*function update() {
-       world.Step(
-             1 / 60   //frame-rate
-          ,  10       //velocity iterations
-          ,  10       //position iterations
-       );
-       world.DrawDebugData();
-       world.ClearForces();
-         
-       window.requestAnimationFrame(update);
-    }; // update()
-    window.requestAnimationFrame(update);*/
-    // easeljs settings
-    /*var screen = new Screen();
-    var $canvas = $('#stage');
-    var stage = new Stage($canvas.get(0));
-    var dpr = window.devicePixelRatio || 1;
-    var stageWidth = 600;//screen.width();
-    var stageHeight = 400;//screen.height();
-    var hiWidth = stageWidth * dpr;
-    var hiHeight = stageHeight * dpr;
-    var circ = (function() {
-      var g = new Graphics();
-      g.ss(1).s('#000').dc(0, 0, 10);
-      var s = new Shape(g);
-      s.x = Math.random() * hiWidth;
-      s.y = Math.random() * hiHeight;
-      console.log(s);
-      return s;
-    }());
-    var floor = (function() {
-      var g = new Graphics();
-      g.ss(0.5).s('#808080').dr(0, 0, stageWidth * dpr, 10 * dpr);
-      var s = new Shape(g);
-      s.x = 0;
-      s.y = stageHeight * dpr - 10 * dpr;
-      return s;
-    }());
-
-    stage.setBounds(0, 0, hiWidth, hiHeight);
-    $canvas.attr('width', hiWidth).attr('height', hiHeight).css({
-      width: stageWidth,
-      height: stageHeight
-    });
-    stage.addChild(circ);
-    stage.addChild(floor);
-
-    // box2d settings
-    var scale = 1 / 30;
-    var gravity = new Box2D.Common.Math.b2Vec2(0, 15);
-    var world = new Box2D.Dynamics.b2World(gravity, true);
-    var velocityIterations = 8;
-    var positionIterations = 3;
-
-    var def = new Box2D.Dynamics.b2BodyDef();
-    def.position.Set(circ.x * scale, circ.y * scale);
-    def.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-    var fix = new Box2D.Dynamics.b2FixtureDef();
-    fix.density = 1.0;     // 密度
-    fix.friction = 0.5;    // 摩擦係数
-    fix.restitution = 0.4; // 反発係数
-    fix.shape = new Box2D.Collision.Shapes.b2CircleShape(10 * scale);
-
-    //def.userDate = circ;
-    var defFl = new Box2D.Dynamics.b2BodyDef();
-    defFl.position.Set(floor.x, floor.y);
-    defFl.type = Box2D.Dynamics.b2Body.b2_staticBody;
-
-    var body = world.CreateBody(def).CreateFixture(fix);
-
-    // debug canvas
-    var $debug = $('#debug');
-    $debug.attr('width', 600).attr('height', 400);
-    var debugDraw = new Box2D.Dynamics.b2DebugDraw();
-    debugDraw.SetSprite($debug.get(0).getContext('2d'));
-    debugDraw.SetDrawScale(scale);
-    debugDraw.SetFillAlpha(0.5);
-    debugDraw.SetLineThickness(1.0);
-    debugDraw.SetFlags(Box2D.Dynamics.b2DebugDraw.e_shapeBit);
-    world.SetDebugDraw(debugDraw);*/
-
     // exec ticker
     var fps = 1 / 60;
     var steps = 100;
@@ -10832,27 +10741,15 @@ require([
     var pos;
     
     listner = Ticker.on('tick', function(e) {
+
       world.Step(e.delta / 1000, 10, 10);
       world.DrawDebugData();
       world.ClearForces();
-      //console.log('Ticker#tick');
-      //world.Step(fps, velocityIterations, positionIterations);
-      //pos = world.GetBodyList().GetPosition();
-      //circ.x = pos.x / scale;
-      //circ.y = pos.y / scale;
-      //stage.update();
-      //world.DrawDebugData();
-
-      //count++;
-
-      //if (count > steps) {
-      //  Ticker.off('tick', listner);
-      //}
     });
   });
 });
 
 
-define("main", function(){});
+define("main-test3", function(){});
 
 }());
