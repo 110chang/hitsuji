@@ -8,7 +8,7 @@
 
 define([
   'box2d'
-], function() {
+], function(b2) {
   return {
     Vec2          : Box2D.Common.Math.b2Vec2,
     AABB          : Box2D.Collision.b2AABB,

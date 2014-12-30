@@ -167,6 +167,8 @@ configure :build do
   ignore "js/main-*.js"
   ignore "js/mod"
   ignore "js/mod/*.js"
+  ignore "js/app"
+  ignore "js/app/*.js"
   ignore "js/spec"
   ignore "js/spec/*.js"
 

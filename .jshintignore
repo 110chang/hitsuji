@@ -1,0 +1,9 @@
+source/js/all.js
+source/js/all-*.js
+source/js/main.js
+source/js/main-*.js
+source/js/lib/**
+source/js/spec/*
+source/js/mod/utils/legacyie.js
+source/js/app/b2.js
+build/**
