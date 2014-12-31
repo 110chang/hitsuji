@@ -8,9 +8,10 @@
 
 define([
   'mod/extend',
-  'app/b2',
-  'app/cnf'
-], function(extend, b2, cnf) {
+  'app/cnf',
+  'matter'
+], function(extend, cnf, M) {
+  var M = M || window.Matter;
   var CW = cnf.CANVAS_WIDTH;
   var CH = cnf.CANVAS_HEIGHT;
   var SCALE = cnf.SCALE;
@@ -23,30 +24,30 @@ define([
   extend(Fence.prototype, {
     bodies: null,
 
-    create: function(world) {
-      var i, fixDef, bodyDef, body;
+    create: function(engine) {
+      var i, x, y, w, h;
+      var body;
 
-      for(i = 0; i < 4; i++) {
-        fixDef = new b2.FixtureDef();
-        fixDef.density = 1.0; //密度
-        fixDef.friction = 0.5; //摩擦
-        fixDef.restitution = 0.2; //弾性
+      for (i = 0; i < 4; i++) {
+        x = CW * (1 - abs(1 - i) / 2) / SCALE;
+        y = CH * (1 - abs(2 - i) / 2) / SCALE;
+        w = pow(CW, (i + 1) % 2) + pow(10, i % 2) / SCALE;
+        h = pow(CH, i % 2) + pow(10, (i + 1) % 2) / SCALE;
 
-        bodyDef = new b2.BodyDef();
-        bodyDef.type = b2.Body.b2_staticBody;
-        // positions the center of the object (not upper left!)
-        bodyDef.position.x = CW * (1 - abs(1 - i) / 2) / SCALE;
-        bodyDef.position.y = CH * (1 - abs(2 - i) / 2) / SCALE;
-
-        fixDef.shape = new b2.PolygonShape();
-        // half width, half height.
-        fixDef.shape.SetAsBox(pow(CW, (i + 1) % 2) / SCALE, pow(CH, i % 2) / SCALE);
-
-        body = world.CreateBody(bodyDef);
-        body.CreateFixture(fixDef);
+        body = M.Bodies.rectangle(x, y, w, h, {
+          isStatic: true,
+          render: {
+            fillStyle: 'rgba(64, 64, 64, 1)',
+            strokeStyle: 'rgba(255, 255, 255, 1)',
+            lineWidth: 1
+          }
+        });
 
         this.bodies.push(body);
       }
+      M.World.add(engine.world, this.bodies);
     }
   });
+
+  return Fence;
 });
