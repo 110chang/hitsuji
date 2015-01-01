@@ -40,11 +40,12 @@ require([
     var engine = M.Engine.create($stage.get(0), {
       render: {
         options: {
-          wireframes: true,
+          wireframes: false,
           width: 600,
           height: 400,
           background: 'rgba(0, 0, 0, 1)',
-          showAngleIndicator: true
+          showAngleIndicator: true,
+          showVelocity: true
         }
       }
     });
@@ -118,6 +119,7 @@ require([
         visible: false
       }
     });
+    console.log(hitsuji);
     var i = 0;
     var l = hitsuji.bodies.length;
     var c, x, y, leg, body;
@@ -136,6 +138,82 @@ require([
     var force = { x: Math.random() * 0.1 - .05, y: Math.random() * 0.1 - .05 };
     M.Body.applyForce(hitsuji.bodies[0], hitsuji.bodies[0].position, force);
     M.World.add(engine.world, [hitsuji]);
+
+    var hitsuji2 = M.Composite.create();
+    var R = 40;
+    var O = {x: 300, y: 200};
+    var i = 0;
+    var l = 6;
+    var x, y;
+    var body = M.Bodies.circle(O.x, O.y, R / 2, {
+      friction: 0.8,
+      inertia: Infinity,
+      render: {
+        sprite: {
+          texture: './img/bodyTop.png'
+        }
+      }
+    });
+    M.Composite.add(hitsuji2, body);
+    for (; i < l; i++) {
+      x = 300 + R * Math.cos(Math.PI / 3 * i);
+      y = 200 + R * Math.sin(Math.PI / 3 * i);
+      body = M.Bodies.circle(x, y, R / 2, {
+        friction: 0.8,
+        inertia: Infinity,
+        render: {
+          sprite: {
+            texture: './img/bodyTop.png'
+          }
+        }
+      });
+      //M.Body.rotate(body, Math.PI / 3 * i)
+      M.Composite.add(hitsuji2, body);
+    }
+    var c;
+    var body, next, center = hitsuji2.bodies[0];
+    for (i = 0; i < l; i++) {
+      body = hitsuji2.bodies[i + 1];
+      if (i < l - 1) {
+        next = hitsuji2.bodies[i + 2];
+      } else {
+        next = hitsuji2.bodies[1];
+      }
+      if (i === 0) {
+        body.render.sprite.texture = './img/head.png';
+      } else if (i === 3) {
+        body.render.sprite.texture = './img/tail.png';
+      } else {
+        body.render.sprite.texture = './img/bodyBottom.png';
+      }
+      c = M.Constraint.create({
+        bodyA: body,
+        bodyB: next,
+        pointA: { x: 0, y: 0 },
+        pointB: { x: 0, y: 0 },
+        stiffness: 0.8,
+        length: R,
+        render: {
+          visible: false
+        }
+      });
+      M.Composite.add(hitsuji2, c);
+      c = M.Constraint.create({
+        bodyA: body,
+        bodyB: center,
+        pointA: { x: 0, y: 0 },
+        pointB: { x: 0, y: 0 },
+        stiffness: 0.8,
+        length: R,
+        render: {
+          visible: false
+        }
+      });
+      M.Composite.add(hitsuji2, c);
+    }
+    var force = { x: Math.random() * 0.1 - .05, y: Math.random() * 0.1 - .05 };
+    M.Body.applyForce(hitsuji2.bodies[0], hitsuji2.bodies[0].position, force);
+    M.World.add(engine.world, [hitsuji2]);
 
     M.Engine.run(engine);
   });
