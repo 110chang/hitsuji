@@ -26,8 +26,9 @@ require([
   'mod/utils/raf',
   'app/cnf',
   'app/fence',
+  'app/hitsuji',
   'matter'
-], function(Anchor, Screen, raf, cnf, Fence, M) {
+], function(Anchor, Screen, raf, cnf, Fence, Hitsuji, M) {
   $(function() {
     console.log('DOM ready.');
     var dpr = window.devicePixelRatio || 1;
@@ -43,7 +44,7 @@ require([
           wireframes: false,
           width: 600,
           height: 400,
-          background: 'rgba(0, 0, 0, 1)',
+          background: '#39F',
           showAngleIndicator: true,
           showVelocity: true
         }
@@ -58,164 +59,35 @@ require([
     M.World.add(engine.world, mouseConstraint);
 
     (new Fence()).create(engine);
-
-
-    /*var hitsuji = M.Composite.create();
-    
-    var i = 0;
-    for (; i < 6; i++) {
-      var size = 10 + Math.random() * 6 - 2;
-      var x = 300 + Math.random() * size - size / 2;
-      var y = 200 + Math.random() * size - size / 2;
-      var circ = M.Bodies.circle(x, y, size, {
-        density: 0.1,
-        frictionAir: 0.1,
-        restitution: 0.9,
-        friction: 0.1,
-        render: {
-          //fillStyle: 'rgba(255, 255, 255, 1)',
-          //strokeStyle: 'rgba(255, 255, 255, 1)',
-          //lineWidth: 0
-        }
-      });
-      M.Composite.add(hitsuji, circ);
-    }
-    console.log(hitsuji);
-    var a, b, dist, c;
-    for (i = 1; i < hitsuji.bodies.length; i++) {
-      a = hitsuji.bodies[i];
-      b = hitsuji.bodies[i - 1];
-      c = M.Constraint.create({
-        bodyA: a,
-        bodyB: b,
-        pointA: { x: 0, y: 0 },
-        pointB: { x: 0, y: 0 },
-        stiffness: 1,
-        length: a.circleRadius + b.circleRadius
-      });
-      M.Composite.add(hitsuji, c);
-    }
-    a = hitsuji.bodies[0];
-    b = hitsuji.bodies[hitsuji.bodies.length - 1];
-    M.Composite.add(hitsuji, M.Constraint.create({
-      bodyA: a,
-      bodyB: b,
-      pointA: { x: 0, y: 0 },
-      pointB: { x: 0, y: 0 },
-      stiffness: 1,
-      length: a.circleRadius + b.circleRadius
-    }));
-    M.World.add(engine.world, [hitsuji]);*/
-
-    var hitsuji = M.Composites.softBody(300, 200, 3, 2, 0, 0, true, 20, {
-      render: {
-        visible: true,
-        fillStyle: '#FFFEF6',
-        strokeStyle: '#FFFEF6',
-        lineWidth: 0
-      }
-    }, {
-      render: {
-        visible: false
-      }
-    });
-    console.log(hitsuji);
-    var i = 0;
-    var l = hitsuji.bodies.length;
-    var c, x, y, leg, body;
-    for (; i < l; i++) {
-      body = hitsuji.bodies[i];
-      if (i === 0) {
-        body.render.sprite.texture = './img/head.png';
-      } else if (i === l - 1) {
-        body.render.sprite.texture = './img/tail.png';
-      } else if (0 < i && i < 3) {
-        body.render.sprite.texture = './img/bodyTop.png';
-      } else {
-        body.render.sprite.texture = './img/bodyBottom.png';
-      }
-    }
-    var force = { x: Math.random() * 0.1 - .05, y: Math.random() * 0.1 - .05 };
-    M.Body.applyForce(hitsuji.bodies[0], hitsuji.bodies[0].position, force);
-    M.World.add(engine.world, [hitsuji]);
-
-    var hitsuji2 = M.Composite.create();
-    var R = 40;
-    var O = {x: 300, y: 200};
-    var i = 0;
-    var l = 6;
-    var x, y;
-    var body = M.Bodies.circle(O.x, O.y, R / 2, {
-      friction: 0.8,
-      inertia: Infinity,
-      render: {
-        sprite: {
-          texture: './img/bodyTop.png'
-        }
-      }
-    });
-    M.Composite.add(hitsuji2, body);
-    for (; i < l; i++) {
-      x = 300 + R * Math.cos(Math.PI / 3 * i);
-      y = 200 + R * Math.sin(Math.PI / 3 * i);
-      body = M.Bodies.circle(x, y, R / 2, {
-        friction: 0.8,
-        inertia: Infinity,
-        render: {
-          sprite: {
-            texture: './img/bodyTop.png'
-          }
-        }
-      });
-      //M.Body.rotate(body, Math.PI / 3 * i)
-      M.Composite.add(hitsuji2, body);
-    }
-    var c;
-    var body, next, center = hitsuji2.bodies[0];
-    for (i = 0; i < l; i++) {
-      body = hitsuji2.bodies[i + 1];
-      if (i < l - 1) {
-        next = hitsuji2.bodies[i + 2];
-      } else {
-        next = hitsuji2.bodies[1];
-      }
-      if (i === 0) {
-        body.render.sprite.texture = './img/head.png';
-      } else if (i === 3) {
-        body.render.sprite.texture = './img/tail.png';
-      } else {
-        body.render.sprite.texture = './img/bodyBottom.png';
-      }
-      c = M.Constraint.create({
-        bodyA: body,
-        bodyB: next,
-        pointA: { x: 0, y: 0 },
-        pointB: { x: 0, y: 0 },
-        stiffness: 0.8,
-        length: R,
-        render: {
-          visible: false
-        }
-      });
-      M.Composite.add(hitsuji2, c);
-      c = M.Constraint.create({
-        bodyA: body,
-        bodyB: center,
-        pointA: { x: 0, y: 0 },
-        pointB: { x: 0, y: 0 },
-        stiffness: 0.8,
-        length: R,
-        render: {
-          visible: false
-        }
-      });
-      M.Composite.add(hitsuji2, c);
-    }
-    var force = { x: Math.random() * 0.1 - .05, y: Math.random() * 0.1 - .05 };
-    M.Body.applyForce(hitsuji2.bodies[0], hitsuji2.bodies[0].position, force);
-    M.World.add(engine.world, [hitsuji2]);
-
+    (new Hitsuji()).create(engine);
     M.Engine.run(engine);
+
+    M.Events.on(engine, 'mousemove', function(e) {
+      var mouse = mouseConstraint.mouse;
+      var bodies = M.Composite.allBodies(engine.world);
+      var startPoint = M.Vector.add(mouse.position, { x: -.1, y: -.1 });
+      var endPoint = M.Vector.add(mouse.position, { x: .1, y: .1 });
+      var collisions = M.Query.ray(bodies, startPoint, endPoint);
+      console.log(collisions.length);
+    });
+
+    var abs = Math.abs;
+    var prevX, prevY, offsetX, offsetY;
+    $stage.on('mousedown', function(e) {
+      //console.log('mouse down');
+      prevX = e.offsetX;
+      prevY = e.offsetY;
+    });
+    $stage.on('mouseup', function(e) {
+      //console.log('mouse up');
+      offsetX = e.offsetX;
+      offsetY = e.offsetY;
+      if (abs(offsetX - prevX) < 1 && abs(offsetY - prevY) < 1) {
+        (new Hitsuji()).create(engine);
+      }
+      offsetX = undefined;
+      offsetY = undefined;
+    });
   });
 });
 

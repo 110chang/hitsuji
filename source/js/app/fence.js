@@ -11,7 +11,7 @@ define([
   'app/cnf',
   'matter'
 ], function(extend, cnf, M) {
-  var M = M || window.Matter;
+  M = M || window.Matter;
   var CW = cnf.CANVAS_WIDTH;
   var CH = cnf.CANVAS_HEIGHT;
   var SCALE = cnf.SCALE;
