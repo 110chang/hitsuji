@@ -12,9 +12,6 @@ define([
   'matter'
 ], function(extend, cnf, M) {
   M = M || window.Matter;
-  var CW = cnf.CANVAS_WIDTH;
-  var CH = cnf.CANVAS_HEIGHT;
-  var SCALE = cnf.SCALE;
   var abs = Math.abs;
   var pow = Math.pow;
 
@@ -27,6 +24,9 @@ define([
     create: function(engine) {
       var i, x, y, w, h;
       var body;
+      var CW = cnf.CANVAS_WIDTH;
+      var CH = cnf.CANVAS_HEIGHT;
+      var SCALE = cnf.SCALE;
 
       for (i = 0; i < 4; i++) {
         x = CW * (1 - abs(1 - i) / 2) / SCALE;

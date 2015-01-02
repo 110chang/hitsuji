@@ -32,10 +32,10 @@ html lang="ja"
     /[if lt IE 9]
       = javascript_include_tag 'lib/respond.src', :type => nil
       = NEWLINE
-    = javascript_include_tag 'lib/jquery', :type => nil
-    = NEWLINE
-    = javascript_include_tag 'lib/jquery.easing', :type => nil
-    = NEWLINE
+    //= javascript_include_tag 'lib/jquery', :type => nil
+    //= NEWLINE
+    //= javascript_include_tag 'lib/jquery.easing', :type => nil
+    //= NEWLINE
     - data_main = get_data_main(current_page.data.id)
     - if build?
       = javascript_include_tag "lib/#{data_main}", :type => nil

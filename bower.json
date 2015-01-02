@@ -20,6 +20,7 @@
     }
   },
   "devDependencies": {
-    "matter-js": "~0.8.0-alpha"
+    "matter-js": "~0.8.0-alpha",
+    "jquery-touchswipe": "~1.6.6"
   }
 }
