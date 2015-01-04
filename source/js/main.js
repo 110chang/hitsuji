@@ -117,10 +117,7 @@ require([
         if (pair.bodyA.id === 4 || pair.bodyB.id === 4) {
           console.log(pair.bodyA.force.y);
           console.log(pair.bodyB.force.y);
-          title.break();
-          M.Composite.allBodies(engine.world).forEach(function(body) {
-            M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
-          });
+          //title.break();
           break;
         }
       }
@@ -140,6 +137,9 @@ require([
     window.setTimeout(function() {
       //console.log('time out 3000(ms)');
       engine.timing.timeScale = 1;
+      M.Composite.allBodies(engine.world).forEach(function(body) {
+        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
+      });
     }, 3000);
 
     window.setTimeout(function() {
