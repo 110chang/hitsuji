@@ -46,6 +46,12 @@ define([
         this.bodies.push(body);
       }
       M.World.add(engine.world, this.bodies);
+    },
+    break: function() {
+      //console.log(this.bodies);
+      this.bodies.forEach(function(body) {
+        M.Body.setStatic(body, false);
+      });
     }
   });
 
