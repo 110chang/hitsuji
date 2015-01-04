@@ -31,8 +31,8 @@ define([
       for (i = 0; i < 4; i++) {
         x = CW * (1 - abs(1 - i) / 2) / SCALE;
         y = CH * (1 - abs(2 - i) / 2) / SCALE;
-        w = pow(CW, (i + 1) % 2) + pow(10, i % 2) / SCALE;
-        h = pow(CH, i % 2) + pow(10, (i + 1) % 2) / SCALE;
+        w = pow(CW, (i + 1) % 2) + pow(20, i % 2) / SCALE;
+        h = pow(CH, i % 2) + pow(20, (i + 1) % 2) / SCALE;
 
         body = M.Bodies.rectangle(x, y, w, h, {
           isStatic: true,
@@ -51,6 +51,8 @@ define([
       //console.log(this.bodies);
       this.bodies.forEach(function(body) {
         M.Body.setStatic(body, false);
+        //M.Body.resetForcesAll(body);
+        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
       });
     }
   });

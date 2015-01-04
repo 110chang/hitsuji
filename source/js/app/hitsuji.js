@@ -35,8 +35,8 @@ define([
       var force = { x: random(-0.01, 0.01), y: random(-0.01, 0.01) };
       var i = 0, l;
 
-      hitsuji = M.Composites.softBody(x, y, 5, 3, 0, 0, true, 20, {
-        density: 0.0001
+      hitsuji = M.Composites.softBody(x, y, 4, 3, 0, 0, true, 20, {
+        density: 0.001
       }, {
         render: {
           visible: false
@@ -45,15 +45,15 @@ define([
       hitsuji.bodies.forEach(function(body, i) {
         if (i === 0) {
           body.render.sprite.texture = './img/legFL.png';
-        } else if (i === 4) {
+        } else if (i === 3) {
           body.render.sprite.texture = './img/legBL.png';
-        } else if (i === 5) {
+        } else if (i === 4) {
           body.render.sprite.texture = './img/head.png';
-        } else if (i === 9) {
+        } else if (i === 7) {
           body.render.sprite.texture = './img/tail.png';
-        } else if (i === 10) {
+        } else if (i === 8) {
           body.render.sprite.texture = './img/legFR.png';
-        } else if (i === 14) {
+        } else if (i === 11) {
           body.render.sprite.texture = './img/legBR.png';
         } else {
           body.render.sprite.texture = './img/bodyTop.png';

@@ -12106,7 +12106,32 @@ define('app/cnf',[], function() {
   return {
     CANVAS_WIDTH: 600,
     CANVAS_HEIGHT: 400,
-    SCALE: 1
+    SCALE: 1,
+
+    devOptions: {
+      enableSleeping: true,
+      render: {
+        options: {
+          wireframes: true,
+          //background: '#39F',
+          showSleeping: true,
+          showAngleIndicator: true,
+          showVelocity: true,
+          showCollisions: true,
+          //showIds: true
+        }
+      }
+    },
+    prodOptions: {
+      enableSleeping: true,
+      render: {
+        options: {
+          wireframes: false,
+          background: '#39F',
+          showSleeping: false
+        }
+      }
+    }
   };
 });
 
@@ -12153,8 +12178,8 @@ define('app/fence',[
       for (i = 0; i < 4; i++) {
         x = CW * (1 - abs(1 - i) / 2) / SCALE;
         y = CH * (1 - abs(2 - i) / 2) / SCALE;
-        w = pow(CW, (i + 1) % 2) + pow(10, i % 2) / SCALE;
-        h = pow(CH, i % 2) + pow(10, (i + 1) % 2) / SCALE;
+        w = pow(CW, (i + 1) % 2) + pow(20, i % 2) / SCALE;
+        h = pow(CH, i % 2) + pow(20, (i + 1) % 2) / SCALE;
 
         body = M.Bodies.rectangle(x, y, w, h, {
           isStatic: true,
@@ -12173,6 +12198,8 @@ define('app/fence',[
       //console.log(this.bodies);
       this.bodies.forEach(function(body) {
         M.Body.setStatic(body, false);
+        //M.Body.resetForcesAll(body);
+        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
       });
     }
   });
@@ -12217,8 +12244,8 @@ define('app/hitsuji',[
       var force = { x: random(-0.01, 0.01), y: random(-0.01, 0.01) };
       var i = 0, l;
 
-      hitsuji = M.Composites.softBody(x, y, 5, 3, 0, 0, true, 20, {
-        density: 0.0001
+      hitsuji = M.Composites.softBody(x, y, 4, 3, 0, 0, true, 20, {
+        density: 0.001
       }, {
         render: {
           visible: false
@@ -12227,15 +12254,15 @@ define('app/hitsuji',[
       hitsuji.bodies.forEach(function(body, i) {
         if (i === 0) {
           body.render.sprite.texture = './img/legFL.png';
-        } else if (i === 4) {
+        } else if (i === 3) {
           body.render.sprite.texture = './img/legBL.png';
-        } else if (i === 5) {
+        } else if (i === 4) {
           body.render.sprite.texture = './img/head.png';
-        } else if (i === 9) {
+        } else if (i === 7) {
           body.render.sprite.texture = './img/tail.png';
-        } else if (i === 10) {
+        } else if (i === 8) {
           body.render.sprite.texture = './img/legFR.png';
-        } else if (i === 14) {
+        } else if (i === 11) {
           body.render.sprite.texture = './img/legBR.png';
         } else {
           body.render.sprite.texture = './img/bodyTop.png';
@@ -12252,26 +12279,14 @@ define('app/hitsuji',[
 
 /*
 *
-*   Title
+*   Charactors
 *
 *   @author Yuji Ito @110chang
 *
 */
 
-define('app/title',[
-  'mod/extend',
-  'app/cnf',
-  'matter'
-], function(extend, cnf, M) {
-  M = M || window.Matter;
-  var CW, CH, SCALE;
-  var abs = Math.abs;
-  var pow = Math.pow;
-  var shadeColor = M.Common.shadeColor;
-  var random = M.Common.random;
-
-  var message = 'A HAPPY\nNEW YEAR\n2015';
-  var charactors = {
+define('app/charactors',[], function() {
+  return {
     A: {
       path: '0.4,60 34.9,0 69.3,60',
       width: 60,
@@ -12321,6 +12336,30 @@ define('app/title',[
       width: 50,
     }
   };
+});
+
+/*
+*
+*   Title
+*
+*   @author Yuji Ito @110chang
+*
+*/
+
+define('app/title',[
+  'mod/extend',
+  'app/cnf',
+  'app/charactors',
+  'matter'
+], function(extend, cnf, charactors, M) {
+  M = M || window.Matter;
+  var CW, CH, SCALE;
+  var abs = Math.abs;
+  var pow = Math.pow;
+  var shadeColor = M.Common.shadeColor;
+  var random = M.Common.random;
+
+  var message = 'A HAPPY\nNEW YEAR\n2015';
 
   function Title() {
     CW = cnf.CANVAS_WIDTH;
@@ -12350,37 +12389,24 @@ define('app/title',[
           continue;
         }
         if (/\s+/.test(chr)) {
-          x += 60;
+          x += 50;
           continue;
         }
-        //console.log(chr);
         var path = this._svgToPath(charactors[chr].path);
-        //console.log(path);
-        
-        var shape = {
+        var body = M.Body.create({
           label: 'title-' + chr,
           position: {
             x: x,
             y: y
           },
           vertices: M.Vertices.fromPath(path),
-          render: {
-            //fillStyle: '#C00',
-            //lineWitdh: 0
-          }
-        };
-        var body = M.Body.create(M.Common.extend({}, shape), {
-          density: 0.01,
-          restitution: 1,
+          restitution: 0.9
         });
-        //M.Composite.add(title, body);
-        M.World.add(engine.world, body);
-        console.log(body);
+        M.Composite.add(title, body);
         x += charactors[chr].width + 10;
       }
-      
       this.composite = title;
-      //M.World.add(engine.world, title);
+      M.World.add(engine.world, title);
 
       return title;
     },
@@ -12439,109 +12465,118 @@ require([
     var CH = cnf.CANVAS_HEIGHT = Screen().height() * dpr;
     var M = M || window.Matter;
     var $stage = $('#stage');
-
-    $stage.css({
-      width: CW / dpr,
-      height: CH / dpr
-    });
-
-    var engine = M.Engine.create($stage.get(0), {
-      enableSleeping: true,
-      render: {
-        //controller: Matter.RenderPixi,
-        options: {
-          wireframes: false,
-          width: CW,
-          height: CH,
-          background: '#39F',
-          showSleeping: false
-          //showAngleIndicator: true,
-          //showVelocity: true,
-          //showCollisions: true,
-          //showIds: true
-        }
-      }
-    });
-
-    var $canvas = $stage.children('canvas');
-    $canvas.css({
-      width: CW / dpr,
-      height: CH / dpr
-    });
-    engine.world.bounds.max.x = CW;
-    engine.world.bounds.max.y = CH;
-    engine.render.options.width = CW;
-    engine.render.options.height = CH;
-    engine.world.gravity.y = 1;
-    M.Engine.clear(engine);
-
-    var mouseConstraint = M.MouseConstraint.create(engine);
-    M.World.add(engine.world, mouseConstraint);
-
-    var fence = new Fence();
-    fence.create(engine);
-    var title = new Title();
-    title.create(engine);
-    //(new Hitsuji()).create(engine);
-    M.Engine.run(engine);
-    engine.timing.timeScale = 0;
+    var $canvas;
+    var engine;
+    var mouseConstraint;
     var broke = false;
+    var fence, title;
+    var bounds = M.Bounds.create([{ x: 0, y: 0 }, { x: CW, y: CH }]);
 
-    M.Events.on(engine, 'afterRender', function(e) {
+    console.log(bounds);
+
+    function init() {
+      $stage.css({
+        width: CW / dpr,
+        height: CH / dpr
+      });
+
+      engine = M.Engine.create(
+        $stage.get(0),
+        M.Common.extend(cnf.prodOptions, {
+          render: {
+            options: {
+              width: CW,
+              height: CH,
+            }
+          }
+        }
+      ));
+      M.Engine.run(engine);
+
+      $canvas = $stage.children('canvas').css({
+        width: CW / dpr,
+        height: CH / dpr
+      });
+
+      reset();
+    }
+    function reset() {
+      M.World.clear(engine.world);
+      M.Engine.clear(engine);
+      engine.timing.timeScale = 1;
+      engine.world.gravity.x = 0;
+      engine.world.gravity.y = 1;
+
+      engine.world.bounds.max.x = CW;
+      engine.world.bounds.max.y = CH;
+      engine.render.options.width = CW;
+      engine.render.options.height = CH;
+      console.log(engine.timing.timeScale);
+      mouseConstraint = M.MouseConstraint.create(engine);
+      M.World.add(engine.world, mouseConstraint);
+      
+      // reset id pool
+      M.Common._nextId = 0;
+
+      // reset random seed
+      M.Common._seed = 0;
+
+      fence = new Fence();
+      fence.create(engine);
+      title = new Title();
+      title.create(engine);
+      //(new Hitsuji()).create(engine);
+      M.Events.on(engine, 'afterRender', onAfterRender);
+
+      var t1 = window.setTimeout(function() {
+        //console.log('time out 3000(ms)');
+        resume();
+        window.clearTimeout(t1);
+      }, 3000);
+
+      var t2 = window.setTimeout(function() {
+        (new Hitsuji()).create(engine);
+        //engine.timing.timeScale = 0;
+        window.clearTimeout(t2);
+      }, 5000);
+
+      pause();
+    }
+    function pause() {
+      engine.timing.timeScale = 0;
+    }
+    function resume() {
+      engine.timing.timeScale = 1;
+      M.Composite.allBodies(engine.world).forEach(function(body) {
+        M.Body.resetForcesAll(body);
+        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
+      });
+    }
+    function onAfterRender(e) {
       var count = M.Composite.allBodies(engine.world).length;
-      if (count > 440) {
+      //console.log(count);
+      if (count > 300) {
         engine.world.bounds.max.y = CH * 2;
         engine.render.options.height = CH * 2;
         fence.break();
         broke = true;
       }
       var minY = CH * 2;
+      var inBounds = false;
       M.Composite.allBodies(engine.world).forEach(function(body) {
         minY = body.position.y < minY ? body.position.y : minY;
-      });
-      if (minY > CH) {
-        //console.log('afterRender end');
-        M.Events.off(engine, 'afterRender');
-      }
-    });
-
-    M.Events.on(engine, 'collisionStart', function(e) {
-      //console.log(e.pairs[0]);
-      var i = 0;
-      for (; i < e.pairs.length; i++) {
-        var pair = e.pairs[i];
-        if (pair.bodyA.id === 4 || pair.bodyB.id === 4) {
-          console.log(pair.bodyA.force.y);
-          console.log(pair.bodyB.force.y);
-          //title.break();
-          break;
+        var b = M.Bounds.contains(bounds, body.position);
+        if (b) {
+          inBounds = true;
         }
-      }
-    });
-
-    M.Events.on(engine, 'collisionEnd', function(e) {
-      //console.log(e.pairs[0]);
-      var pairs = e.pairs;
-      //console.log(pairs.length);
-      if (broke && pairs.length < 10) {
-        console.log('collosion end');
-        M.Engine.clear(engine);
-        M.Events.off(engine, 'collisionEnd');
-      }
-    });
-
-    window.setTimeout(function() {
-      //console.log('time out 3000(ms)');
-      engine.timing.timeScale = 1;
-      M.Composite.allBodies(engine.world).forEach(function(body) {
-        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
       });
-    }, 3000);
-
-    window.setTimeout(function() {
-      (new Hitsuji()).create(engine);
-      //engine.timing.timeScale = 0;
-    }, 5000);
+      if (broke && !inBounds) {
+        console.log('afterRender end');
+        M.Events.off(engine, 'afterRender');
+        reset();
+      }
+    }
+    init();
 
     $stage.swipe({
       tap: function(e) {
@@ -12549,7 +12584,7 @@ require([
         var mouse = mouseConstraint.mouse;
         (new Hitsuji(mouse.position.x, mouse.position.y)).create(engine);
       }
-    })
+    });
   });
 });
 

@@ -43,109 +43,118 @@ require([
     var CH = cnf.CANVAS_HEIGHT = Screen().height() * dpr;
     var M = M || window.Matter;
     var $stage = $('#stage');
-
-    $stage.css({
-      width: CW / dpr,
-      height: CH / dpr
-    });
-
-    var engine = M.Engine.create($stage.get(0), {
-      enableSleeping: true,
-      render: {
-        //controller: Matter.RenderPixi,
-        options: {
-          wireframes: false,
-          width: CW,
-          height: CH,
-          background: '#39F',
-          showSleeping: false
-          //showAngleIndicator: true,
-          //showVelocity: true,
-          //showCollisions: true,
-          //showIds: true
-        }
-      }
-    });
-
-    var $canvas = $stage.children('canvas');
-    $canvas.css({
-      width: CW / dpr,
-      height: CH / dpr
-    });
-    engine.world.bounds.max.x = CW;
-    engine.world.bounds.max.y = CH;
-    engine.render.options.width = CW;
-    engine.render.options.height = CH;
-    engine.world.gravity.y = 1;
-    M.Engine.clear(engine);
-
-    var mouseConstraint = M.MouseConstraint.create(engine);
-    M.World.add(engine.world, mouseConstraint);
-
-    var fence = new Fence();
-    fence.create(engine);
-    var title = new Title();
-    title.create(engine);
-    //(new Hitsuji()).create(engine);
-    M.Engine.run(engine);
-    engine.timing.timeScale = 0;
+    var $canvas;
+    var engine;
+    var mouseConstraint;
     var broke = false;
+    var fence, title;
+    var bounds = M.Bounds.create([{ x: 0, y: 0 }, { x: CW, y: CH }]);
 
-    M.Events.on(engine, 'afterRender', function(e) {
+    console.log(bounds);
+
+    function init() {
+      $stage.css({
+        width: CW / dpr,
+        height: CH / dpr
+      });
+
+      engine = M.Engine.create(
+        $stage.get(0),
+        M.Common.extend(cnf.prodOptions, {
+          render: {
+            options: {
+              width: CW,
+              height: CH,
+            }
+          }
+        }
+      ));
+      M.Engine.run(engine);
+
+      $canvas = $stage.children('canvas').css({
+        width: CW / dpr,
+        height: CH / dpr
+      });
+
+      reset();
+    }
+    function reset() {
+      M.World.clear(engine.world);
+      M.Engine.clear(engine);
+      engine.timing.timeScale = 1;
+      engine.world.gravity.x = 0;
+      engine.world.gravity.y = 1;
+
+      engine.world.bounds.max.x = CW;
+      engine.world.bounds.max.y = CH;
+      engine.render.options.width = CW;
+      engine.render.options.height = CH;
+      console.log(engine.timing.timeScale);
+      mouseConstraint = M.MouseConstraint.create(engine);
+      M.World.add(engine.world, mouseConstraint);
+      
+      // reset id pool
+      M.Common._nextId = 0;
+
+      // reset random seed
+      M.Common._seed = 0;
+
+      fence = new Fence();
+      fence.create(engine);
+      title = new Title();
+      title.create(engine);
+      //(new Hitsuji()).create(engine);
+      M.Events.on(engine, 'afterRender', onAfterRender);
+
+      var t1 = window.setTimeout(function() {
+        //console.log('time out 3000(ms)');
+        resume();
+        window.clearTimeout(t1);
+      }, 3000);
+
+      var t2 = window.setTimeout(function() {
+        (new Hitsuji()).create(engine);
+        //engine.timing.timeScale = 0;
+        window.clearTimeout(t2);
+      }, 5000);
+
+      pause();
+    }
+    function pause() {
+      engine.timing.timeScale = 0;
+    }
+    function resume() {
+      engine.timing.timeScale = 1;
+      M.Composite.allBodies(engine.world).forEach(function(body) {
+        M.Body.resetForcesAll(body);
+        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
+      });
+    }
+    function onAfterRender(e) {
       var count = M.Composite.allBodies(engine.world).length;
-      if (count > 440) {
+      //console.log(count);
+      if (count > 300) {
         engine.world.bounds.max.y = CH * 2;
         engine.render.options.height = CH * 2;
         fence.break();
         broke = true;
       }
       var minY = CH * 2;
+      var inBounds = false;
       M.Composite.allBodies(engine.world).forEach(function(body) {
         minY = body.position.y < minY ? body.position.y : minY;
-      });
-      if (minY > CH) {
-        //console.log('afterRender end');
-        M.Events.off(engine, 'afterRender');
-      }
-    });
-
-    M.Events.on(engine, 'collisionStart', function(e) {
-      //console.log(e.pairs[0]);
-      var i = 0;
-      for (; i < e.pairs.length; i++) {
-        var pair = e.pairs[i];
-        if (pair.bodyA.id === 4 || pair.bodyB.id === 4) {
-          console.log(pair.bodyA.force.y);
-          console.log(pair.bodyB.force.y);
-          //title.break();
-          break;
+        var b = M.Bounds.contains(bounds, body.position);
+        if (b) {
+          inBounds = true;
         }
-      }
-    });
-
-    M.Events.on(engine, 'collisionEnd', function(e) {
-      //console.log(e.pairs[0]);
-      var pairs = e.pairs;
-      //console.log(pairs.length);
-      if (broke && pairs.length < 10) {
-        console.log('collosion end');
-        M.Engine.clear(engine);
-        M.Events.off(engine, 'collisionEnd');
-      }
-    });
-
-    window.setTimeout(function() {
-      //console.log('time out 3000(ms)');
-      engine.timing.timeScale = 1;
-      M.Composite.allBodies(engine.world).forEach(function(body) {
-        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
       });
-    }, 3000);
-
-    window.setTimeout(function() {
-      (new Hitsuji()).create(engine);
-      //engine.timing.timeScale = 0;
-    }, 5000);
+      if (broke && !inBounds) {
+        console.log('afterRender end');
+        M.Events.off(engine, 'afterRender');
+        reset();
+      }
+    }
+    init();
 
     $stage.swipe({
       tap: function(e) {
@@ -153,7 +162,7 @@ require([
         var mouse = mouseConstraint.mouse;
         (new Hitsuji(mouse.position.x, mouse.position.y)).create(engine);
       }
-    })
+    });
   });
 });
 
