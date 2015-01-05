@@ -1066,9 +1066,9 @@ requirejs.config({
   baseUrl: '/js',
   urlArgs: 'bust=' + (new Date()).getTime(),
   paths: {
-    'jquery'           : 'lib/jquery.min',
-    'matter'           : 'lib/matter-0.8.0.min',
-    'mod'              : 'mod'
+    'jquery': 'lib/jquery.min',
+    'matter': 'lib/matter-0.8.0.min',
+    'mod'   : 'mod'
   }
 });
 
