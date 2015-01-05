@@ -14,16 +14,17 @@ define([
 ], function(extend, cnf, charactors, M) {
   M = M || window.Matter;
   var CW, CH, SCALE;
-  var message = 'A HAPPY\nNEW YEAR\n2015';
 
-  function Title() {
+  function Title(msg) {
     CW = cnf.CANVAS_WIDTH;
     CH = cnf.CANVAS_HEIGHT;
     SCALE = cnf.SCALE;
 
+    this.msg = msg || '';
     this.center = { x: CW / 2, y: CH / 2 };
   }
   extend(Title.prototype, {
+    msg: '',
     composite: null,
 
     create: function(engine) {
@@ -32,8 +33,8 @@ define([
       var x = 60, y = 60;
       var chr, path, body;
 
-      for (; i < message.length; i++) {
-        chr = message[i];
+      for (; i < this.msg.length; i++) {
+        chr = this.msg[i];
         if (/[0-9]/.test(chr)) {
           chr = 'n' + chr;
         }
@@ -48,7 +49,7 @@ define([
         }
         path = this._svgToPath(charactors[chr].path);
         body = M.Body.create({
-          label: 'title-' + chr,
+          label: 'Title-' + chr,
           position: {
             x: x + charactors[chr].supple.x,
             y: y + charactors[chr].supple.y

@@ -1,6 +1,6 @@
 /*
 *
-*   Configuration
+*   App/Configuration
 *
 *   @author Yuji Ito @110chang
 *

@@ -136,6 +136,7 @@ input.placeholder {
   position: absolute;
   right: 0;
   top: 0;
+  z-index: 9;
   margin: 20px;
   font-size: 1.5rem;
   border: 0;
@@ -180,7 +181,10 @@ input.placeholder {
 }
 
 body:before {
-  display: none;
+  overflow: hidden;
+  display: inline;
+  width: 0;
+  height: 0;
   background-image: url(../img/legFL.png);
   background-image: url(../img/legBL.png);
   background-image: url(../img/head.png);

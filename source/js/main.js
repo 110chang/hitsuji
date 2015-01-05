@@ -8,7 +8,7 @@ requirejs.config({
   baseUrl: '/js',
   urlArgs: 'bust=' + (new Date()).getTime(),
   paths: {
-    'jquery'           : 'lib/jquery',
+    'jquery'           : 'lib/jquery.min',
     'matter'           : 'lib/matter-0.8.0.min',
     'mod'              : 'mod'
   }
@@ -18,13 +18,12 @@ require([
   'jquery',
   'mod/screen',
   'mod/timer',
-  'mod/utils/raf',
   'app/cnf',
   'app/fence',
   'app/hitsuji',
   'app/title',
   'matter'
-], function($, Screen, Timer, raf, cnf, Fence, Hitsuji, Title, M) {
+], function($, Screen, Timer, cnf, Fence, Hitsuji, Title, M) {
   $(function() {
     //console.log('DOM ready.');
     var M = M || window.Matter;
@@ -80,7 +79,6 @@ require([
       engine.timing.timeScale = 1;
       engine.world.gravity.x = 0;
       engine.world.gravity.y = 1;
-
       engine.world.bounds.max.x = CW;
       engine.world.bounds.max.y = CH;
       engine.render.options.width = CW;
@@ -91,27 +89,28 @@ require([
 
       fence = new Fence();
       fence.create(engine);
-      title = new Title();
+
+      title = new Title('A HAPPY\nNEW YEAR\n2015');
       title.create(engine);
+
       timer0 = new Timer(3000);
       timer1 = new Timer(3000, -1);
-      broke = false;
-      
-      M.Events.on(engine, 'afterRender', onAfterRender);
 
       timer0.subscribe(Timer.TIMER, function(e) {
         //console.log('time begins to move');
         resume();
         timer1.start();
       });
-
       timer1.subscribe(Timer.TIMER, function(e) {
         //console.log('create hitsuji');
         //console.log(M.Composite.allBodies(engine.world).length);
         (new Hitsuji()).create(engine);
       });
-
       timer0.start();
+
+      broke = false;
+
+      M.Events.on(engine, 'afterRender', onAfterRender);
 
       pause();
     }

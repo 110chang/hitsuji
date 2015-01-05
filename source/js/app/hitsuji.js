@@ -52,7 +52,6 @@ define([
       });
       M.Body.applyForce(hitsuji.bodies[0], hitsuji.bodies[0].position, force);
       M.World.add(engine.world, [hitsuji]);
-      //console.log(hitsuji.bodies[0]);
     }
   });
 

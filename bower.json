@@ -15,6 +15,9 @@
     "almond": "~0.3.0"
   },
   "exportsOverride": {
+    "jquery": {
+      "js": "dist/jquery.min.js"
+    },
     "modernizr": {
       "js": "modernizr.js"
     }
