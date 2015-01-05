@@ -65,6 +65,31 @@ input.placeholder
 #masthead
   width: 100%
 
+#toggle-wireframe
+  -moz-appearance: none
+  -webkit-appearance: none
+  appearance: none
+  position: absolute
+  right: 0
+  top: 0
+  margin: 20px
+  font-size: 1.5rem
+  border: 0
+  border-bottom: 2px solid #CCC
+  background: #FFF
+  color: #333
+  font-family: Futura, Arial, sans-serif
+  border-radius: 4px
+
+  &:active
+    border: 0
+    margin-top: 22px
+
+  &.on
+    background: #39F
+    border-bottom: 2px solid #06C
+    color: #FFF
+
 /* ============================
  * 
  *     Contents
@@ -95,5 +120,16 @@ input.placeholder
 
 #colophon
   width: 100%
+
+
+/* ============================
+ * 
+ *     Footer - #colophon
+ *
+ * ============================ */
+
+@media screen and(max-width: 767px)
+  #toggle-wireframe
+    font-size: 1.25rem
 
 // EOF

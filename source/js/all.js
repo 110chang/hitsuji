@@ -10328,11 +10328,12 @@ require([
     //console.log('DOM ready.');
     var M = M || window.Matter;
     var dpr = window.devicePixelRatio || 1;
-    var $stage, $canvas;
+    var $stage, $canvas, $toggle;
     var engine, mouseConstraint, fence, title, bounds;
     var timer0, timer1;
     var maxBodyNum = 0;
     var broke = false;
+    var wireframe = false;
     var CW, CH;
 
     function init() {
@@ -10346,7 +10347,7 @@ require([
 
       engine = M.Engine.create(
         $stage.get(0),
-        M.Common.extend(cnf.devOptions, {
+        M.Common.extend(cnf.prodOptions, {
           render: {
             options: {
               width: CW,
@@ -10362,9 +10363,14 @@ require([
         height: CH / dpr
       });
 
+      $toggle = $('#toggle-wireframe');
+      $toggle.on('click', function(e) {
+        toggleWireframe();
+      });
+
       bounds = M.Bounds.create([{ x: 0, y: 0 }, { x: CW, y: CH }]);
       maxBodyNum = ~~(Math.pow(CW * CH, 1 / 3) * 2 / dpr);
-
+      //console.log(maxBodyNum);
       reset();
     }
     function reset() {
@@ -10381,8 +10387,6 @@ require([
       //console.log(engine.timing.timeScale);
       mouseConstraint = M.MouseConstraint.create(engine);
       M.World.add(engine.world, mouseConstraint);
-
-      console.log(maxBodyNum);
 
       fence = new Fence();
       fence.create(engine);
@@ -10438,10 +10442,27 @@ require([
         }
       });
       if (broke && !inBounds) {
-        console.log('afterRender end');
+        //console.log('afterRender end');
         M.Events.off(engine, 'afterRender');
         reset();
       }
+    }
+    function toggleWireframe() {
+      wireframe = !wireframe;
+      if (wireframe) {
+        engine.render.options.wireframes = true;
+        engine.render.options.showSleeping = true;
+        engine.render.options.showAngleIndicator = true;
+        engine.render.options.showVelocity = true;
+        engine.render.options.showCollisions = true;
+      } else {
+        engine.render.options.wireframes = false;
+        engine.render.options.showSleeping = false;
+        engine.render.options.showAngleIndicator = false;
+        engine.render.options.showVelocity = false;
+        engine.render.options.showCollisions = false;
+      }
+      $toggle.toggleClass('on');
     }
     init();
   });
