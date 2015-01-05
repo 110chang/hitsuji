@@ -34,7 +34,7 @@ html lang="ja"
       = NEWLINE
     - data_main = get_data_main(current_page.data.id)
     - if build?
-      = javascript_include_tag "lib/#{data_main}", :type => nil
+      = javascript_include_tag "#{data_main}", :type => nil
     - else
       = javascript_include_tag 'lib/require', :type => nil, :'data-main' => data_main
     = NEWLINE

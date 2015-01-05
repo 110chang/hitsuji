@@ -47,7 +47,7 @@ require([
 
       engine = M.Engine.create(
         $stage.get(0),
-        M.Common.extend(cnf.prodOptions, {
+        M.Common.extend(cnf.devOptions, {
           render: {
             options: {
               width: CW,
