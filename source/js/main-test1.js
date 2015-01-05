@@ -9,25 +9,20 @@ requirejs.config({
   urlArgs: 'bust=' + (new Date()).getTime(),
   paths: {
     'jquery'       : 'lib/jquery',
-    'jquery.easing': 'lib/jquery.easing',
     'box2d'        : 'lib/Box2dWeb',
     'easel'        : 'lib/easeljs.min',
     'mod'          : 'mod'
-  },
-  "shim": {
-    "jquery.easing": ["jquery"]
   }
 });
 
 require([
-  'mod/nav/anchor',
   'mod/screen',
   'mod/browser',
   'mod/utils/raf',
   'app/b2',
   'box2d',
   'easel'
-], function(Anchor, Screen, Browser, raf, b2) {
+], function(Screen, Browser, raf, b2) {
   $(function() {
     console.log('DOM ready.');
     var CANVAS_WIDTH = 600;

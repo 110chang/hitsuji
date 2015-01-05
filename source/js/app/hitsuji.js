@@ -1,6 +1,6 @@
 /*
 *
-*   Hitsuji
+*   App/Hitsuji
 *
 *   @author Yuji Ito @110chang
 *
@@ -13,11 +13,6 @@ define([
 ], function(extend, cnf, M) {
   M = M || window.Matter;
   var random = M.Common.random;
-  var abs = Math.abs;
-  var pow = Math.pow;
-  var cos = Math.cos;
-  var sin = Math.sin;
-  var PI = Math.PI;
 
   function Hitsuji(x, y) {
     x = x || cnf.CANVAS_WIDTH / 2;
@@ -25,19 +20,15 @@ define([
     this.center = { x: x, y: y };
   }
   extend(Hitsuji.prototype, {
-    R: 0,
     center: null,
 
     create: function(engine) {
       var hitsuji;
-      var x = this.center.x;
-      var y = this.center.y;
+      var x = 40 + random(0, 6) * 40;//this.center.x;
+      var y = 40;//this.center.y;
       var force = { x: random(-0.01, 0.01), y: random(-0.01, 0.01) };
-      var i = 0, l;
 
-      hitsuji = M.Composites.softBody(x, y, 4, 3, 0, 0, true, 20, {
-        density: 0.001
-      }, {
+      hitsuji = M.Composites.softBody(x, y, 4, 3, 0, 0, true, 20, {}, {
         render: {
           visible: false
         }
@@ -61,7 +52,7 @@ define([
       });
       M.Body.applyForce(hitsuji.bodies[0], hitsuji.bodies[0].position, force);
       M.World.add(engine.world, [hitsuji]);
-      console.log(hitsuji.bodies[0]);
+      //console.log(hitsuji.bodies[0]);
     }
   });
 

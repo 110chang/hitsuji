@@ -9,54 +9,41 @@ requirejs.config({
   urlArgs: 'bust=' + (new Date()).getTime(),
   paths: {
     'jquery'           : 'lib/jquery',
-    'jquery.easing'    : 'lib/jquery.easing',
-    'jquery.touchSwipe': 'lib/jquery.touchSwipe',
     'matter'           : 'lib/matter-0.8.0.min',
     'mod'              : 'mod'
-  },
-  "shim": {
-    "jquery.easing": [
-      "jquery"
-    ],
-    "jquery.touchSwipe": [
-      "jquery"
-    ]
   }
 });
 
 require([
   'jquery',
-  'jquery.touchSwipe',
-  'mod/nav/anchor',
   'mod/screen',
+  'mod/timer',
   'mod/utils/raf',
   'app/cnf',
   'app/fence',
   'app/hitsuji',
   'app/title',
   'matter'
-], function($, touchSwipe, Anchor, Screen, raf, cnf, Fence, Hitsuji, Title, M) {
+], function($, Screen, Timer, raf, cnf, Fence, Hitsuji, Title, M) {
   $(function() {
-    console.log('DOM ready.');
-    var dpr = window.devicePixelRatio || 1;
-    var CW = cnf.CANVAS_WIDTH = Screen().width() * dpr;
-    var CH = cnf.CANVAS_HEIGHT = Screen().height() * dpr;
+    //console.log('DOM ready.');
     var M = M || window.Matter;
-    var $stage = $('#stage');
-    var $canvas;
-    var engine;
-    var mouseConstraint;
+    var dpr = window.devicePixelRatio || 1;
+    var $stage, $canvas;
+    var engine, mouseConstraint, fence, title, bounds;
+    var timer0, timer1;
+    var maxBodyNum = 0;
     var broke = false;
-    var fence, title;
-    var bounds = M.Bounds.create([{ x: 0, y: 0 }, { x: CW, y: CH }]);
-
-    console.log(bounds);
+    var CW, CH;
 
     function init() {
-      $stage.css({
+      CW = cnf.CANVAS_WIDTH = Screen().width() * dpr;
+      CH = cnf.CANVAS_HEIGHT = Screen().height() * dpr;
+
+      $stage = $('#stage').css({
         width: CW / dpr,
         height: CH / dpr
-      });
+      }).empty();
 
       engine = M.Engine.create(
         $stage.get(0),
@@ -76,6 +63,9 @@ require([
         height: CH / dpr
       });
 
+      bounds = M.Bounds.create([{ x: 0, y: 0 }, { x: CW, y: CH }]);
+      maxBodyNum = ~~(Math.pow(CW * CH, 1 / 3) * 2 / dpr);
+
       reset();
     }
     function reset() {
@@ -89,34 +79,35 @@ require([
       engine.world.bounds.max.y = CH;
       engine.render.options.width = CW;
       engine.render.options.height = CH;
-      console.log(engine.timing.timeScale);
+      //console.log(engine.timing.timeScale);
       mouseConstraint = M.MouseConstraint.create(engine);
       M.World.add(engine.world, mouseConstraint);
-      
-      // reset id pool
-      M.Common._nextId = 0;
 
-      // reset random seed
-      M.Common._seed = 0;
+      console.log(maxBodyNum);
 
       fence = new Fence();
       fence.create(engine);
       title = new Title();
       title.create(engine);
-      //(new Hitsuji()).create(engine);
+      timer0 = new Timer(3000);
+      timer1 = new Timer(3000, -1);
+      broke = false;
+      
       M.Events.on(engine, 'afterRender', onAfterRender);
 
-      var t1 = window.setTimeout(function() {
-        //console.log('time out 3000(ms)');
+      timer0.subscribe(Timer.TIMER, function(e) {
+        //console.log('time begins to move');
         resume();
-        window.clearTimeout(t1);
-      }, 3000);
+        timer1.start();
+      });
 
-      var t2 = window.setTimeout(function() {
+      timer1.subscribe(Timer.TIMER, function(e) {
+        //console.log('create hitsuji');
+        //console.log(M.Composite.allBodies(engine.world).length);
         (new Hitsuji()).create(engine);
-        //engine.timing.timeScale = 0;
-        window.clearTimeout(t2);
-      }, 5000);
+      });
+
+      timer0.start();
 
       pause();
     }
@@ -132,19 +123,18 @@ require([
     }
     function onAfterRender(e) {
       var count = M.Composite.allBodies(engine.world).length;
+      var inBounds = false;
       //console.log(count);
-      if (count > 300) {
+      if (count > maxBodyNum) {
         engine.world.bounds.max.y = CH * 2;
         engine.render.options.height = CH * 2;
         fence.break();
         broke = true;
+        timer1.stop();
       }
-      var minY = CH * 2;
-      var inBounds = false;
       M.Composite.allBodies(engine.world).forEach(function(body) {
-        minY = body.position.y < minY ? body.position.y : minY;
-        var b = M.Bounds.contains(bounds, body.position);
-        if (b) {
+        M.Body.applyForce(body, body.position, { x: 0, y: 0.0001 });
+        if (M.Bounds.contains(bounds, body.position)) {
           inBounds = true;
         }
       });
@@ -155,14 +145,6 @@ require([
       }
     }
     init();
-
-    $stage.swipe({
-      tap: function(e) {
-        //console.log('tap');
-        var mouse = mouseConstraint.mouse;
-        (new Hitsuji(mouse.position.x, mouse.position.y)).create(engine);
-      }
-    });
   });
 });
 

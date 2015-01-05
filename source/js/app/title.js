@@ -1,6 +1,6 @@
 /*
 *
-*   Title
+*   App/Title
 *
 *   @author Yuji Ito @110chang
 *
@@ -14,11 +14,6 @@ define([
 ], function(extend, cnf, charactors, M) {
   M = M || window.Matter;
   var CW, CH, SCALE;
-  var abs = Math.abs;
-  var pow = Math.pow;
-  var shadeColor = M.Common.shadeColor;
-  var random = M.Common.random;
-
   var message = 'A HAPPY\nNEW YEAR\n2015';
 
   function Title() {
@@ -29,17 +24,16 @@ define([
     this.center = { x: CW / 2, y: CH / 2 };
   }
   extend(Title.prototype, {
-    engine: null,
     composite: null,
 
     create: function(engine) {
-      //M.World.add(engine.world, this._createStopper());
       var title = M.Composite.create();
       var i = 0;
       var x = 60, y = 60;
+      var chr, path, body;
 
       for (; i < message.length; i++) {
-        var chr = message[i];
+        chr = message[i];
         if (/[0-9]/.test(chr)) {
           chr = 'n' + chr;
         }
@@ -52,12 +46,12 @@ define([
           x += 50;
           continue;
         }
-        var path = this._svgToPath(charactors[chr].path);
-        var body = M.Body.create({
+        path = this._svgToPath(charactors[chr].path);
+        body = M.Body.create({
           label: 'title-' + chr,
           position: {
-            x: x,
-            y: y
+            x: x + charactors[chr].supple.x,
+            y: y + charactors[chr].supple.y
           },
           vertices: M.Vertices.fromPath(path),
           restitution: 0.9

@@ -1,6 +1,6 @@
 /*
 *
-*   Fence
+*   App/Fence
 *
 *   @author Yuji Ito @110chang
 *
@@ -37,8 +37,8 @@ define([
         body = M.Bodies.rectangle(x, y, w, h, {
           isStatic: true,
           render: {
-            fillStyle: 'rgba(64, 64, 64, 1)',
-            strokeStyle: 'rgba(255, 255, 255, 1)',
+            fillStyle: 'rgba(64, 64, 64, 0.8)',
+            strokeStyle: 'rgba(255, 255, 255, 0.8)',
             lineWidth: 1
           }
         });
