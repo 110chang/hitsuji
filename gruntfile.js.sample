@@ -23,13 +23,49 @@ module.exports = function(grunt) {
       ],
       tasks: ['jasmine']
     },
+    main: ["main", "main-test1"],
+    all: ["all", "all-test1"],
     requirejs: {
       compile: {
         options: {
           //name : 'main',
           include: ["lib/almond", "main"],
           baseUrl: "./source/js",
+          mainConfigFile: './source/js/main.js',
           out: "./source/js/all.js",
+          optimize: "none",
+          wrap: true
+        }
+      },
+      "compile-test1": {
+        options: {
+          //name : 'main',
+          include: ["lib/almond", "main-test1"],
+          baseUrl: "./source/js",
+          mainConfigFile: './source/js/main-test1.js',
+          out: "./source/js/all-test1.js",
+          optimize: "none",
+          wrap: true
+        }
+      },
+      "compile-test2": {
+        options: {
+          //name : 'main',
+          include: ["lib/almond", "main-test2"],
+          baseUrl: "./source/js",
+          mainConfigFile: './source/js/main-test2.js',
+          out: "./source/js/all-test2.js",
+          optimize: "none",
+          wrap: true
+        }
+      },
+      "compile-test3": {
+        options: {
+          //name : 'main',
+          include: ["lib/almond", "main-test3"],
+          baseUrl: "./source/js",
+          mainConfigFile: './source/js/main-test3.js',
+          out: "./source/js/all-test3.js",
           optimize: "none",
           wrap: true
         }
@@ -104,10 +140,10 @@ module.exports = function(grunt) {
   
   grunt.registerTask('init', ['bower:install']);
   grunt.registerTask('server', ['middleman:server']);
-  grunt.registerTask('build', ['requirejs:compile', 'middleman:build', 'jshint']);
+  grunt.registerTask('build', ['requirejs', 'middleman:build', 'jshint']);
   // short hands
   grunt.registerTask('i', ['bower:install']);
   grunt.registerTask('s', ['middleman:server']);
   grunt.registerTask('w', ['watch']);
-  grunt.registerTask('b', ['requirejs:compile', 'middleman:build', 'jshint']);
+  grunt.registerTask('b', ['requirejs', 'middleman:build', 'jshint']);
 }
