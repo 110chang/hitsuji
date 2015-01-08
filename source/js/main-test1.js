@@ -8,7 +8,7 @@ requirejs.config({
   baseUrl: '/js',
   urlArgs: 'bust=' + (new Date()).getTime(),
   paths: {
-    'jquery'       : 'lib/jquery',
+    'jquery'       : 'lib/jquery.min',
     'box2d'        : 'lib/Box2dWeb',
     'easel'        : 'lib/easeljs.min',
     'mod'          : 'mod'
